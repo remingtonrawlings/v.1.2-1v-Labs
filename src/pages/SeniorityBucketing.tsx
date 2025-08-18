@@ -1,13 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Target, Plus, Edit3, Trash2, User, ChevronsRight, Sparkles } from 'lucide-react';
-
-export interface SeniorityBucket {
-  id: string;
-  name: string;
-  secondaryLabel: string;
-  levels: string[];
-  color: string;
-}
+import { SeniorityBucket } from '../types';
 
 interface SeniorityBucketingProps {
   onBack: () => void;
