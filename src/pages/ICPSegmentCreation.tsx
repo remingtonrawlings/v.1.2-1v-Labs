@@ -16,7 +16,78 @@ interface ICPSegmentCreationProps {
 
 const GROUP_COLORS = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#6366F1', '#14B8A6'];
 
-// Modal component remains the same
+const PersonaAssignmentModal = ({
+    icpGroups,
+    personaBuckets,
+    onAssign,
+    onCancel,
+} : {
+    icpGroups: ICPSegmentGroup[];
+    personaBuckets: PersonaBucket[];
+    onAssign: (groupId: string, personaIds: string[]) => void;
+    onCancel: () => void;
+}) => {
+    const [selectedGroupId, setSelectedGroupId] = useState('');
+    const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
+    
+    const assignedPersonaIdsInSelectedGroup = useMemo(() => {
+        const group = icpGroups.find(g => g.id === selectedGroupId);
+        return new Set(group ? group.personaIds : []);
+    }, [selectedGroupId, icpGroups]);
+
+    const togglePersonaSelection = (id: string) => {
+        const newSet = new Set(selectedPersonaIds);
+        if(newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setSelectedPersonaIds(newSet);
+    }
+
+    const handleAssign = () => {
+        onAssign(selectedGroupId, Array.from(selectedPersonaIds));
+    }
+
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl h-[80vh] flex flex-col">
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-gray-800">Bulk Assign Personas</h2>
+              <p className="text-gray-600">Assign multiple personas to a specific ICP Segment Group.</p>
+            </div>
+            <div className="p-6 flex-grow overflow-y-auto">
+                <div className="mb-6">
+                    <label className="font-semibold text-lg mb-2 block">1. Select ICP Segment Group</label>
+                    <select value={selectedGroupId} onChange={e => setSelectedGroupId(e.target.value)} className="w-full p-3 border rounded-lg">
+                        <option value="">Choose a group...</option>
+                        {icpGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                    </select>
+                </div>
+                {selectedGroupId && (
+                <div>
+                    <label className="font-semibold text-lg mb-2 block">2. Select Personas to Add</label>
+                    <div className="grid grid-cols-2 gap-3 p-4 border rounded-lg max-h-[40vh] overflow-y-auto">
+                        {personaBuckets.map(p => {
+                            const isAssigned = assignedPersonaIdsInSelectedGroup.has(p.id);
+                            return (
+                                <label key={p.id} className={`flex items-center space-x-3 p-3 rounded-lg ${isAssigned ? 'text-gray-400 bg-gray-100' : 'hover:bg-gray-100 cursor-pointer'}`}>
+                                    <input type="checkbox" disabled={isAssigned} checked={selectedPersonaIds.has(p.id)} onChange={() => togglePersonaSelection(p.id)} className="h-5 w-5 rounded border-gray-300 text-teal-600 focus:ring-teal-500"/>
+                                    <span>{p.name}</span>
+                                </label>
+                            )
+                        })}
+                    </div>
+                </div>
+                )}
+            </div>
+            <div className="p-6 border-t flex justify-between items-center">
+                <button onClick={onCancel} className="px-4 py-2 bg-gray-200 rounded-lg">Close</button>
+                <button onClick={handleAssign} disabled={!selectedGroupId || selectedPersonaIds.size === 0} className="px-6 py-3 bg-teal-600 text-white rounded-lg font-semibold disabled:bg-teal-300">
+                    Assign {selectedPersonaIds.size > 0 ? selectedPersonaIds.size : ''} Personas
+                </button>
+            </div>
+          </div>
+        </div>
+    );
+};
 
 export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, onNext, accountSegments, personaBuckets, seniorityBuckets, departmentBuckets, initialGroups, initialEditGroupId, onEditFlowComplete }) => {
   const [icpGroups, setIcpGroups] = useState<ICPSegmentGroup[]>(initialGroups);
@@ -44,7 +115,6 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
     onNext(icpGroups);
   };
   
-  // ... all other functions (createIcpGroup, saveEditingGroup, etc.) remain the same
   const toggleGroupExpansion = (groupId: string) => {
     const newSet = new Set(expandedGroupIds);
     if(newSet.has(groupId)) newSet.delete(groupId);
@@ -150,7 +220,7 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
 
   return (
     <>
-    {/* PersonaAssignmentModal would need to be defined here if used */}
+    {showAssignModal && <PersonaAssignmentModal icpGroups={icpGroups} personaBuckets={personaBuckets} onAssign={handleBulkAssign} onCancel={() => setShowAssignModal(false)} />}
     {editingGroup && (
          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 flex flex-col h-[90vh]">
@@ -186,13 +256,15 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
         </div>
       </header>
       
-      {/* ... rest of the JSX remains the same */}
        <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
                 <div className="bg-white rounded-xl border p-6 shadow-sm sticky top-24">
                     <h2 className="text-lg font-bold text-gray-800 mb-2 flex items-center"><UserCheck className="w-5 h-5 mr-2 text-red-600" />Persona Library</h2>
-                    {/* Bulk Assign Modal Button would be here */}
+                    <button onClick={() => setShowAssignModal(true)} className="w-full flex items-center justify-center space-x-2 px-4 py-2 mb-4 bg-white text-teal-600 border border-teal-600 rounded-lg hover:bg-teal-50 transition-colors">
+                        <AppWindow className="w-4 h-4" />
+                        <span>Bulk Assign Personas</span>
+                    </button>
                     <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-2">
                         {personaBuckets.length > 0 ? personaBuckets.map(persona => {
                             const details = getPersonaDetails(persona.id);
