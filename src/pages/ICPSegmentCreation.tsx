@@ -123,7 +123,9 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
       color: GROUP_COLORS[icpGroups.length % GROUP_COLORS.length],
       strategicContext: '',
       painPoints: '',
-      valueProps: ''
+      valueProps: '',
+      crmList: '',
+      assets: ''
     };
     setIcpGroups([...icpGroups, newGroup]);
     setEditingGroup(newGroup);
@@ -200,6 +202,8 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
                     <div><label className="font-semibold">Strategic Context for Messaging</label><textarea value={editingGroup.strategicContext} onChange={e => setEditingGroup({...editingGroup, strategicContext: e.target.value})} rows={3} className="w-full p-2 border rounded-lg mt-1" /></div>
                     <div><label className="font-semibold">Pains / Problem Hypothesis</label><textarea value={editingGroup.painPoints} onChange={e => setEditingGroup({...editingGroup, painPoints: e.target.value})} rows={3} className="w-full p-2 border rounded-lg mt-1" /></div>
                     <div><label className="font-semibold">Value Propositions</label><textarea value={editingGroup.valueProps} onChange={e => setEditingGroup({...editingGroup, valueProps: e.target.value})} rows={3} className="w-full p-2 border rounded-lg mt-1" /></div>
+                    <div><label className="font-semibold">CRM List (e.g., Salesforce URL)</label><textarea value={editingGroup.crmList} onChange={e => setEditingGroup({...editingGroup, crmList: e.target.value})} rows={2} className="w-full p-2 border rounded-lg mt-1" /></div>
+                    <div><label className="font-semibold">Assets (Campaigns, Programs, etc.)</label><textarea value={editingGroup.assets} onChange={e => setEditingGroup({...editingGroup, assets: e.target.value})} rows={2} className="w-full p-2 border rounded-lg mt-1" /></div>
                     <div><label className="font-semibold">Group Color</label><div className="flex space-x-2 mt-2">{GROUP_COLORS.map(color => (<button key={color} onClick={() => setEditingGroup({...editingGroup, color})} className="w-8 h-8 rounded-full" style={{ backgroundColor: color, outline: editingGroup.color === color ? `2px solid ${color}` : 'none', outlineOffset: '2px' }} />))}</div></div>
                 </div>
                 <div className="flex justify-end space-x-2 mt-6 pt-4 border-t">
@@ -288,6 +292,8 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
                                         <div><h4 className="font-semibold text-gray-800">Strategic Context</h4><p>{group.strategicContext || "N/A"}</p></div>
                                         <div><h4 className="font-semibold text-gray-800">Pain Points</h4><p>{group.painPoints || "N/A"}</p></div>
                                         <div><h4 className="font-semibold text-gray-800">Value Propositions</h4><p>{group.valueProps || "N/A"}</p></div>
+                                        <div><h4 className="font-semibold text-gray-800">CRM List</h4><p className="whitespace-pre-wrap break-words">{group.crmList || "N/A"}</p></div>
+                                        <div><h4 className="font-semibold text-gray-800">Assets</h4><p className="whitespace-pre-wrap break-words">{group.assets || "N/A"}</p></div>
                                     </div>
                                 )}
                             </div>
