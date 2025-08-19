@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Briefcase, Plus, Edit3, Trash2, X, Check, ChevronsRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Briefcase, Plus, Edit3, Trash2, X, ChevronsRight, Copy } from 'lucide-react';
 import { AccountSegment } from '../types';
 
 interface AccountSegmentationProps {
@@ -8,9 +8,7 @@ interface AccountSegmentationProps {
   initialSegments: AccountSegment[];
 }
 
-const DEFAULT_INDUSTRIES = ["Technology", "Healthcare", "Finance", "Manufacturing", "Retail", "Education", "Real Estate", "Professional Services"];
-const EMPLOYEE_BANDS = ["1-10", "11-50", "51-200", "201-1,000", "1,001-5,000", "5,001+"];
-const REVENUE_BANDS = ["<$1M", "$1M-$10M", "$10M-$50M", "$50M-$250M", "$250M+"];
+const DEFAULT_INDUSTRIES = ["Technology", "SaaS", "Healthcare", "Biotechnology", "Financial Services", "Insurance", "Manufacturing", "Automotive", "Retail", "E-commerce", "Education", "EdTech", "Real Estate", "Construction", "Professional Services", "Consulting", "Marketing & Advertising", "Media & Entertainment", "Telecommunications", "Hospitality", "Logistics & Supply Chain", "Government"];
 
 const EditSegmentModal = ({
   segment,
@@ -24,17 +22,20 @@ const EditSegmentModal = ({
   const [editedSegment, setEditedSegment] = useState(segment);
   const [customIndustry, setCustomIndustry] = useState('');
 
-  const toggleSelection = (key: keyof AccountSegment, value: string) => {
-    const currentValues = editedSegment[key] as string[];
-    const newValues = new Set(currentValues);
-    if (newValues.has(value)) newValues.delete(value);
-    else newValues.add(value);
-    setEditedSegment({ ...editedSegment, [key]: Array.from(newValues) });
+  const handleTextChange = (key: 'employeeCounts' | 'revenueBands', value: string) => {
+    setEditedSegment({ ...editedSegment, [key]: [value] });
   };
+  
+  const toggleIndustry = (industry: string) => {
+    const newIndustries = new Set(editedSegment.industries);
+    if(newIndustries.has(industry)) newIndustries.delete(industry);
+    else newIndustries.add(industry);
+    setEditedSegment({...editedSegment, industries: Array.from(newIndustries)});
+  }
   
   const addCustomIndustry = () => {
     if (customIndustry && !editedSegment.industries.includes(customIndustry)) {
-        setEditedSegment({...editedSegment, industries: [...editedSegment.industries, customIndustry]});
+        toggleIndustry(customIndustry);
         setCustomIndustry('');
     }
   }
@@ -49,28 +50,21 @@ const EditSegmentModal = ({
               <label className="font-semibold text-gray-700">Segment Name</label>
               <input type="text" value={editedSegment.name} onChange={e => setEditedSegment({...editedSegment, name: e.target.value})} className="w-full p-2 border rounded-lg mt-1" />
             </div>
-            {/* Industries */}
+             <div><label className="font-semibold text-gray-700">Employee Count</label><input type="text" value={editedSegment.employeeCounts[0] || ''} onChange={e => handleTextChange('employeeCounts', e.target.value)} className="w-full p-2 border rounded-lg mt-1" placeholder="e.g., 50-250, 1000+"/></div>
+            <div><label className="font-semibold text-gray-700">Annual Revenue</label><input type="text" value={editedSegment.revenueBands[0] || ''} onChange={e => handleTextChange('revenueBands', e.target.value)} className="w-full p-2 border rounded-lg mt-1" placeholder="e.g., $10M-$50M, $1B+"/></div>
             <div>
                 <label className="font-semibold text-gray-700">Industries</label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                    {DEFAULT_INDUSTRIES.map(ind => (
-                        <label key={ind} className="flex items-center space-x-2"><input type="checkbox" checked={editedSegment.industries.includes(ind)} onChange={() => toggleSelection('industries', ind)}/><span>{ind}</span></label>
-                    ))}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 max-h-48 overflow-y-auto p-2 border rounded-lg">
+                    {DEFAULT_INDUSTRIES.map(ind => (<label key={ind} className="flex items-center space-x-2"><input type="checkbox" checked={editedSegment.industries.includes(ind)} onChange={() => toggleIndustry(ind)}/><span>{ind}</span></label>))}
                 </div>
                 <div className="flex items-center space-x-2 mt-2">
                     <input type="text" value={customIndustry} onChange={e => setCustomIndustry(e.target.value)} placeholder="Add custom industry..." className="flex-grow p-2 border rounded-lg" />
                     <button onClick={addCustomIndustry} className="px-4 py-2 bg-gray-200 rounded-lg">Add</button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                    {editedSegment.industries.filter(i => !DEFAULT_INDUSTRIES.includes(i)).map(ind => (
-                        <span key={ind} className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm flex items-center">{ind} <button onClick={() => toggleSelection('industries', ind)} className="ml-1"><X size={14}/></button></span>
-                    ))}
+                    {editedSegment.industries.filter(i => !DEFAULT_INDUSTRIES.includes(i)).map(ind => (<span key={ind} className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm flex items-center">{ind} <button onClick={() => toggleIndustry(ind)} className="ml-1"><X size={14}/></button></span>))}
                 </div>
             </div>
-            {/* Employee/Revenue Bands */}
-            <div><label className="font-semibold text-gray-700">Employee Count</label><div className="grid grid-cols-3 gap-2 mt-2">{EMPLOYEE_BANDS.map(band => (<label key={band} className="flex items-center space-x-2"><input type="checkbox" checked={editedSegment.employeeCounts.includes(band)} onChange={() => toggleSelection('employeeCounts', band)}/><span>{band}</span></label>))}</div></div>
-            <div><label className="font-semibold text-gray-700">Annual Revenue</label><div className="grid grid-cols-3 gap-2 mt-2">{REVENUE_BANDS.map(band => (<label key={band} className="flex items-center space-x-2"><input type="checkbox" checked={editedSegment.revenueBands.includes(band)} onChange={() => toggleSelection('revenueBands', band)}/><span>{band}</span></label>))}</div></div>
-
           </div>
           <div className="flex justify-end space-x-3 mt-8">
             <button onClick={onCancel} className="px-4 py-2 bg-gray-200 rounded-lg">Cancel</button>
@@ -98,6 +92,15 @@ export const AccountSegmentation: React.FC<AccountSegmentationProps> = ({ onBack
     setEditingSegment(newSegment);
   };
   
+  const handleCloneSegment = (segmentToClone: AccountSegment) => {
+    const newSegment: AccountSegment = {
+      ...JSON.parse(JSON.stringify(segmentToClone)), // Deep copy
+      id: `acct-${Date.now()}`,
+      name: `${segmentToClone.name} - Copy`,
+    };
+    setEditingSegment(newSegment);
+  };
+
   const handleSaveSegment = (segmentToSave: AccountSegment) => {
     const exists = segments.some(s => s.id === segmentToSave.id);
     if(exists) {
@@ -148,12 +151,13 @@ export const AccountSegmentation: React.FC<AccountSegmentationProps> = ({ onBack
                 <div>
                   <h3 className="text-lg font-bold text-gray-800 mb-4">{segment.name}</h3>
                   <div className="space-y-3 text-sm">
-                    <div><span className="font-semibold">Industries:</span> {segment.industries.join(', ') || 'Any'}</div>
                     <div><span className="font-semibold">Employees:</span> {segment.employeeCounts.join(', ') || 'Any'}</div>
                     <div><span className="font-semibold">Revenue:</span> {segment.revenueBands.join(', ') || 'Any'}</div>
+                    <div className="h-16 overflow-y-auto"><span className="font-semibold">Industries:</span> {segment.industries.join(', ') || 'Any'}</div>
                   </div>
                 </div>
                 <div className="flex justify-end space-x-2 mt-4">
+                  <button onClick={() => handleCloneSegment(segment)} className="p-2 hover:bg-gray-100 rounded-lg"><Copy className="w-4 h-4 text-gray-600" /></button>
                   <button onClick={() => setEditingSegment(segment)} className="p-2 hover:bg-gray-100 rounded-lg"><Edit3 className="w-4 h-4 text-gray-600" /></button>
                   <button onClick={() => deleteSegment(segment.id)} className="p-2 hover:bg-red-100 rounded-lg"><Trash2 className="w-4 h-4 text-red-600" /></button>
                 </div>

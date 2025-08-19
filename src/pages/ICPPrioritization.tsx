@@ -1,22 +1,24 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, BarChart3, GripVertical } from 'lucide-react';
+import { ArrowLeft, BarChart3, GripVertical, ChevronsRight } from 'lucide-react';
 import { ICPSegmentGroup } from '../types';
 
-interface ICPProritizationProps {
-  onBack: () => void;
-  icpGroups: ICPSegmentGroup[];
-}
-
-type PriorityLevel = 'high' | 'medium' | 'low' | 'unassigned';
-
-interface PriorityState {
+export interface PriorityState {
   high: string[];
   medium: string[];
   low: string[];
 }
 
-export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, icpGroups }) => {
-  const [priorities, setPriorities] = useState<PriorityState>({ high: [], medium: [], low: [] });
+interface ICPProritizationProps {
+  onBack: () => void;
+  onNext: (priorities: PriorityState) => void;
+  icpGroups: ICPSegmentGroup[];
+  initialPriorities: PriorityState;
+}
+
+type PriorityLevel = 'high' | 'medium' | 'low' | 'unassigned';
+
+export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, onNext, icpGroups, initialPriorities }) => {
+  const [priorities, setPriorities] = useState<PriorityState>(initialPriorities);
   const [draggedGroupId, setDraggedGroupId] = useState<string | null>(null);
 
   const unassignedGroups = useMemo(() => {
@@ -33,14 +35,12 @@ export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, icp
   const handleDrop = (targetPriority: PriorityLevel) => {
     if (!draggedGroupId) return;
 
-    // Remove from all lists first
     let newPriorities: PriorityState = {
       high: priorities.high.filter(id => id !== draggedGroupId),
       medium: priorities.medium.filter(id => id !== draggedGroupId),
       low: priorities.low.filter(id => id !== draggedGroupId),
     };
 
-    // Add to the target list if it's not unassigned
     if (targetPriority !== 'unassigned') {
         newPriorities[targetPriority] = [...newPriorities[targetPriority], draggedGroupId];
     }
@@ -89,7 +89,7 @@ export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, icp
                         <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-xl flex items-center justify-center"><BarChart3 className="w-6 h-6 text-white" /></div>
                         <div><h1 className="text-2xl font-bold text-gray-900">Step 6: ICP Prioritization</h1><p className="text-gray-600">Organize your ICP groups by priority</p></div>
                     </div>
-                    <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">Complete Setup</button>
+                    <button onClick={() => onNext(priorities)} className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"><span>Finish & See Summary</span><ChevronsRight className="w-5 h-5" /></button>
                 </div>
             </div>
         </header>

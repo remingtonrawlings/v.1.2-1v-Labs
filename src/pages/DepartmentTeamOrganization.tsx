@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { ArrowLeft, Building2, Plus, Search, Edit3, Trash2, ChevronDown, ChevronRight, CheckCircle2, ChevronsRight, Layers } from 'lucide-react';
+import { ArrowLeft, Building2, Plus, Search, Edit3, Trash2, ChevronDown, ChevronRight, CheckCircle2, ChevronsRight, Layers, AppWindow } from 'lucide-react';
 import { departmentTeamMapping } from '../data/comprehensiveOrgData';
 import { DepartmentBucket, TeamFunction } from '../types';
 
@@ -19,6 +19,81 @@ const BUCKET_COLORS = [
   'bg-yellow-50 border-yellow-200',
   'bg-red-50 border-red-200'
 ];
+
+const FunctionsAssignmentModal = ({
+  departmentBuckets,
+  assignedFunctionKeys,
+  onAssign,
+  onCancel,
+}: {
+  departmentBuckets: DepartmentBucket[];
+  assignedFunctionKeys: Set<string>;
+  onAssign: (bucketId: string, functionKeys: string[]) => void;
+  onCancel: () => void;
+}) => {
+  const [selectedBucketId, setSelectedBucketId] = useState<string>('');
+  const [selectedFunctionKeys, setSelectedFunctionKeys] = useState<Set<string>>(new Set());
+
+  const toggleFunctionSelection = (key: string) => {
+    const newSet = new Set(selectedFunctionKeys);
+    if (newSet.has(key)) newSet.delete(key);
+    else newSet.add(key);
+    setSelectedFunctionKeys(newSet);
+  };
+  
+  const handleAssign = () => {
+    onAssign(selectedBucketId, Array.from(selectedFunctionKeys));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
+        <div className="p-6 border-b">
+          <h2 className="text-2xl font-bold text-gray-800">View & Assign Functions</h2>
+          <p className="text-gray-600">Bulk-assign functions to one of your custom buckets.</p>
+        </div>
+        <div className="p-6 flex-grow overflow-y-hidden grid grid-cols-3 gap-6">
+          <div className="col-span-1 border-r pr-6">
+            <h3 className="font-semibold mb-2">1. Select a Bucket</h3>
+            <select value={selectedBucketId} onChange={e => setSelectedBucketId(e.target.value)} className="w-full p-2 border rounded-lg mb-4">
+              <option value="">Choose a bucket...</option>
+              {departmentBuckets.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+            <h3 className="font-semibold mb-2">2. Select Functions</h3>
+            <p className="text-sm text-gray-500">Check the functions to add to the selected bucket.</p>
+          </div>
+          <div className="col-span-2 overflow-y-auto">
+             <div className="space-y-4">
+              {Object.entries(departmentTeamMapping).map(([deptName, functions]) => (
+                <div key={deptName}>
+                  <h4 className="font-bold text-gray-700 mb-2">{deptName}</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    {functions.map(func => {
+                      const isAssigned = assignedFunctionKeys.has(func.key);
+                      return (
+                        <label key={func.key} className={`flex items-center space-x-2 p-2 rounded-md ${isAssigned ? 'text-gray-400' : 'hover:bg-gray-100 cursor-pointer'}`}>
+                          <input type="checkbox" disabled={isAssigned} checked={selectedFunctionKeys.has(func.key)} onChange={() => toggleFunctionSelection(func.key)} className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"/>
+                          <span>{func.name}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+             </div>
+          </div>
+        </div>
+        <div className="p-6 border-t flex justify-between items-center">
+            <button onClick={onCancel} className="px-4 py-2 bg-gray-200 rounded-lg">Close</button>
+            <button onClick={handleAssign} disabled={!selectedBucketId || selectedFunctionKeys.size === 0} className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold disabled:bg-green-300">
+                Assign {selectedFunctionKeys.size > 0 ? selectedFunctionKeys.size : ''} Functions
+            </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const BulkCreateModal = ({ onSave, onCancel }: { onSave: (names: string[]) => void; onCancel: () => void; }) => {
   const [step, setStep] = useState(1);
@@ -94,6 +169,7 @@ export const DepartmentTeamOrganization: React.FC<DepartmentTeamOrganizationProp
   const [editLabel, setEditLabel] = useState('');
   const editingNameInputRef = useRef<HTMLInputElement>(null);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
 
   useEffect(() => {
     if (editingBucket && editingNameInputRef.current) {
@@ -115,6 +191,24 @@ export const DepartmentTeamOrganization: React.FC<DepartmentTeamOrganizationProp
     return deptName.toLowerCase().includes(searchTerm.toLowerCase()) ||
            teams.some(team => team.name.toLowerCase().includes(searchTerm.toLowerCase()));
   });
+  
+  const handleBulkAssign = (bucketId: string, functionKeys: string[]) => {
+    const functionsToAdd: TeamFunction[] = [];
+    
+    for (const key of functionKeys) {
+        for (const deptName in departmentTeamMapping) {
+            const func = departmentTeamMapping[deptName].find(f => f.key === key);
+            if(func) {
+                functionsToAdd.push({ ...func, departmentName: deptName});
+                break;
+            }
+        }
+    }
+    
+    updateBucket(bucketId, { functions: [...(departmentBuckets.find(b => b.id === bucketId)?.functions || []), ...functionsToAdd] });
+    setShowAssignModal(false);
+  };
+
 
   const createDepartmentBucket = () => {
     const newBucket: DepartmentBucket = {
@@ -212,6 +306,7 @@ export const DepartmentTeamOrganization: React.FC<DepartmentTeamOrganizationProp
   return (
     <>
       {showBulkModal && <BulkCreateModal onSave={handleBulkSave} onCancel={() => setShowBulkModal(false)} />}
+      {showAssignModal && <FunctionsAssignmentModal departmentBuckets={departmentBuckets} assignedFunctionKeys={assignedFunctionKeys} onAssign={handleBulkAssign} onCancel={() => setShowAssignModal(false)} />}
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-6 py-4">
@@ -249,7 +344,10 @@ export const DepartmentTeamOrganization: React.FC<DepartmentTeamOrganizationProp
                     <Building2 className="w-5 h-5 mr-2 text-green-600" />
                     Functions Library
                   </h2>
-                  <p className="text-sm text-gray-600 mb-4">These standard functions represent the teams and groups within an organization. Drag them into your custom buckets.</p>
+                   <button onClick={() => setShowAssignModal(true)} className="w-full flex items-center justify-center space-x-2 px-4 py-2 mb-4 bg-white text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors">
+                        <AppWindow className="w-4 h-4" />
+                        <span>View & Assign Functions</span>
+                    </button>
                   <div className="relative">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input type="text" placeholder="Search functions..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg" />

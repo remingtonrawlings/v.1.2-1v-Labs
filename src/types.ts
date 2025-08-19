@@ -41,4 +41,16 @@ export interface ICPSegmentGroup {
     accountSegmentId: string | null;
     personaIds: Set<string>;
     color: string;
+    strategicContext?: string;
+    painPoints?: string;
+    valueProps?: string;
+}
+
+export interface DiagnosticAssessment {
+    id: string; // Corresponds to focus area id
+    name: string;
+    category: string;
+    maturity: number | null;
+    impact: number;
+    feasibility: number;
 }

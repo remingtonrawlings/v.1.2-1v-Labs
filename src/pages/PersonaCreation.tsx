@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, UserCheck, Plus, Edit3, Trash2, Check, X, Sparkles, ChevronsRight } from 'lucide-react';
+import { ArrowLeft, UserCheck, Plus, Edit3, Trash2, Check, X, Sparkles, ChevronsRight, FileText, FileSymlink, Edit } from 'lucide-react';
 import { SeniorityBucket, DepartmentBucket, PersonaBucket } from '../types';
 
 interface PersonaCreationProps {
@@ -164,21 +164,38 @@ export const PersonaCreation: React.FC<PersonaCreationProps> = ({ onBack, onNext
     switch(step) {
       case 'naming_convention':
         return (
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Choose Your Persona Naming Convention</h2>
-            <p className="text-gray-600 mb-8">This determines how your personas will be named by default.</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button onClick={() => handleConventionSelected('seniority_first')} className="p-6 border rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors">
-                <div className="font-bold text-lg">[Seniority] - [Function]</div>
-                <div className="text-sm text-gray-500">e.g., "Executive - Go-to-Market"</div>
+          <div className="max-w-xl mx-auto">
+            <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">Choose Your Persona Naming Convention</h2>
+                <p className="text-gray-600">This determines how your personas will be named by default.</p>
+            </div>
+            <div className="space-y-4">
+              <button onClick={() => handleConventionSelected('seniority_first')} className="w-full text-left p-6 border-2 rounded-xl hover:border-red-500 hover:bg-red-50 transition-colors group">
+                <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center"><FileText /></div>
+                    <div>
+                        <div className="font-bold text-lg text-gray-800 group-hover:text-red-800">[Seniority] - [Function]</div>
+                        <div className="text-sm text-gray-500">e.g., "Executive - Go-to-Market"</div>
+                    </div>
+                </div>
               </button>
-              <button onClick={() => handleConventionSelected('function_first')} className="p-6 border rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors">
-                <div className="font-bold text-lg">[Function] - [Seniority]</div>
-                <div className="text-sm text-gray-500">e.g., "Go-to-Market - Executive"</div>
+              <button onClick={() => handleConventionSelected('function_first')} className="w-full text-left p-6 border-2 rounded-xl hover:border-red-500 hover:bg-red-50 transition-colors group">
+                 <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center"><FileSymlink /></div>
+                    <div>
+                        <div className="font-bold text-lg text-gray-800 group-hover:text-red-800">[Function] - [Seniority]</div>
+                        <div className="text-sm text-gray-500">e.g., "Go-to-Market - Executive"</div>
+                    </div>
+                </div>
               </button>
-              <button onClick={() => handleConventionSelected('custom')} className="p-6 border rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors">
-                <div className="font-bold text-lg">Custom Names</div>
-                <div className="text-sm text-gray-500">Manually name each persona</div>
+              <button onClick={() => handleConventionSelected('custom')} className="w-full text-left p-6 border-2 rounded-xl hover:border-red-500 hover:bg-red-50 transition-colors group">
+                <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center"><Edit /></div>
+                    <div>
+                        <div className="font-bold text-lg text-gray-800 group-hover:text-red-800">Custom Names</div>
+                        <div className="text-sm text-gray-500">Manually name each persona</div>
+                    </div>
+                </div>
               </button>
             </div>
           </div>
