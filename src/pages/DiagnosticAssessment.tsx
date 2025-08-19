@@ -92,7 +92,7 @@ export const DiagnosticAssessment: React.FC<DiagnosticAssessmentProps> = ({ onBa
                             <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg"><ArrowLeft className="w-5 h-5 text-gray-600" /></button>
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"><Workflow className="w-6 h-6 text-white" /></div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Step 8: Diagnostic Assessment</h1>
+                                <h1 className="text-2xl font-bold text-gray-900">Step 9: Diagnostic Assessment</h1>
                                 <p className="text-gray-600">Diagnose GTM health and prioritize actions</p>
                             </div>
                         </div>

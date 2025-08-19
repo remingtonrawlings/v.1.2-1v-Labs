@@ -57,6 +57,16 @@ export interface DiagnosticAssessment {
     feasibility: number;
 }
 
+export interface SalesStage {
+    id: string;
+    name: string;
+    description: string;
+    exitCriteria: string;
+    requiredActivities: string;
+    trainingRequirements: string;
+    linkedAssets: string[];
+}
+
 export interface StrategicWorkflowSurvey {
   inbound: {
     contactsLeads: boolean | null;

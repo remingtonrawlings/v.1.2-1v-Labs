@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Target, Building2, UserCheck, Briefcase, Group, BarChart3, FileText, Workflow, ListCollapse } from 'lucide-react';
+import { ArrowLeft, Target, Building2, UserCheck, Briefcase, Group, BarChart3, FileText, Workflow, ListCollapse, GanttChartSquare } from 'lucide-react';
 import { SeniorityBucketing } from './SeniorityBucketing';
 import { DepartmentTeamOrganization } from './DepartmentTeamOrganization';
 import { PersonaCreation } from './PersonaCreation';
@@ -7,15 +7,16 @@ import { AccountSegmentation } from './AccountSegmentation';
 import { ICPSegmentCreation } from './ICPSegmentCreation';
 import { ICPPrioritization } from './ICPPrioritization';
 import { StrategicWorkflows } from './StrategicWorkflows';
+import { SalesProcessBuilder } from './SalesProcessBuilder';
 import { DiagnosticAssessment } from './DiagnosticAssessment';
 import { HolisticSummary, PriorityState } from './HolisticSummary';
-import { SeniorityBucket, DepartmentBucket, PersonaBucket, AccountSegment, ICPSegmentGroup, DiagnosticAssessment as DiagnosticAssessmentType, StrategicWorkflowSurvey } from '../types';
+import { SeniorityBucket, DepartmentBucket, PersonaBucket, AccountSegment, ICPSegmentGroup, DiagnosticAssessment as DiagnosticAssessmentType, StrategicWorkflowSurvey, SalesStage } from '../types';
 
 interface OrganizationalDesignProps {
   onBack: () => void;
 }
 
-type ExperienceStep = 'choice' | 'seniority' | 'department' | 'persona' | 'account' | 'icp' | 'prioritization' | 'strategicWorkflows' | 'diagnosticAssessment' | 'holisticSummary';
+type ExperienceStep = 'choice' | 'seniority' | 'department' | 'persona' | 'account' | 'icp' | 'prioritization' | 'strategicWorkflows' | 'salesProcessBuilder' | 'diagnosticAssessment' | 'holisticSummary';
 
 export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBack }) => {
   const [step, setStep] = useState<ExperienceStep>('choice');
@@ -24,11 +25,18 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
   const [personaBuckets, setPersonaBuckets] = useState<PersonaBucket[]>([]);
   const [accountSegments, setAccountSegments] = useState<AccountSegment[]>([]);
   const [icpGroups, setIcpGroups] = useState<ICPSegmentGroup[]>([]);
+  const [groupToEditId, setGroupToEditId] = useState<string | null>(null);
   const [priorities, setPriorities] = useState<PriorityState>({ high: [], medium: [], low: [] });
   const [strategicWorkflowSurvey, setStrategicWorkflowSurvey] = useState<StrategicWorkflowSurvey | null>(null);
+  const [salesStages, setSalesStages] = useState<SalesStage[]>([]);
   const [diagnosticAssessments, setDiagnosticAssessments] = useState<DiagnosticAssessmentType[]>([]);
 
   const handleBackToChoice = () => setStep('choice');
+
+  const handleRequestEditGroup = (groupId: string) => {
+    setGroupToEditId(groupId);
+    setStep('icp');
+  };
 
   const handleSeniorityNext = (buckets: SeniorityBucket[]) => { setSeniorityBuckets(buckets); setStep('department'); };
   const handleDepartmentNext = (buckets: DepartmentBucket[]) => { setDepartmentBuckets(buckets); setStep('persona'); };
@@ -38,6 +46,10 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
   const handlePrioritizationNext = (finalPriorities: PriorityState) => { setPriorities(finalPriorities); setStep('strategicWorkflows'); };
   const handleStrategicWorkflowsNext = (surveyData: StrategicWorkflowSurvey) => {
     setStrategicWorkflowSurvey(surveyData);
+    setStep('salesProcessBuilder');
+  };
+  const handleSalesProcessNext = (stages: SalesStage[]) => {
+    setSalesStages(stages);
     setStep('diagnosticAssessment');
   };
   const handleDiagnosticNext = (assessments: DiagnosticAssessmentType[]) => {
@@ -53,11 +65,12 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
   if (step === 'department') return <DepartmentTeamOrganization onBack={() => setStep('seniority')} onNext={handleDepartmentNext} initialBuckets={departmentBuckets} />;
   if (step === 'persona') return <PersonaCreation onBack={() => setStep('department')} onNext={handlePersonaNext} seniorityBuckets={seniorityBuckets} departmentBuckets={departmentBuckets} initialPersonas={personaBuckets} />;
   if (step === 'account') return <AccountSegmentation onBack={() => setStep('persona')} onNext={handleAccountNext} initialSegments={accountSegments} />;
-  if (step === 'icp') return <ICPSegmentCreation onBack={() => setStep('account')} onNext={handleIcpNext} personaBuckets={personaBuckets} accountSegments={accountSegments} seniorityBuckets={seniorityBuckets} departmentBuckets={departmentBuckets} initialGroups={icpGroups} />;
-  if (step === 'prioritization') return <ICPPrioritization onBack={() => setStep('icp')} onNext={handlePrioritizationNext} icpGroups={icpGroups} initialPriorities={priorities} />;
+  if (step === 'icp') return <ICPSegmentCreation onBack={() => setStep('account')} onNext={handleIcpNext} personaBuckets={personaBuckets} accountSegments={accountSegments} seniorityBuckets={seniorityBuckets} departmentBuckets={departmentBuckets} initialGroups={icpGroups} initialEditGroupId={groupToEditId} onEditFlowComplete={() => setGroupToEditId(null)} />;
+  if (step === 'prioritization') return <ICPPrioritization onBack={() => setStep('icp')} onNext={handlePrioritizationNext} icpGroups={icpGroups} initialPriorities={priorities} accountSegments={accountSegments} personaBuckets={personaBuckets} onEditRequest={handleRequestEditGroup} />;
   if (step === 'strategicWorkflows') return <StrategicWorkflows onBack={() => setStep('prioritization')} onNext={handleStrategicWorkflowsNext} />;
-  if (step === 'diagnosticAssessment') return <DiagnosticAssessment onBack={() => setStep('strategicWorkflows')} onNext={handleDiagnosticNext} />;
-  if (step === 'holisticSummary') return <HolisticSummary onBack={() => setStep('diagnosticAssessment')} onComplete={handleSummaryComplete} data={{seniorityBuckets, departmentBuckets, personaBuckets, accountSegments, icpGroups, priorities, survey: strategicWorkflowSurvey, diagnostics: diagnosticAssessments }}/>;
+  if (step === 'salesProcessBuilder') return <SalesProcessBuilder onBack={() => setStep('strategicWorkflows')} onNext={handleSalesProcessNext} initialStages={salesStages} />;
+  if (step === 'diagnosticAssessment') return <DiagnosticAssessment onBack={() => setStep('salesProcessBuilder')} onNext={handleDiagnosticNext} />;
+  if (step === 'holisticSummary') return <HolisticSummary onBack={() => setStep('diagnosticAssessment')} onComplete={handleSummaryComplete} data={{seniorityBuckets, departmentBuckets, personaBuckets, accountSegments, icpGroups, priorities, survey: strategicWorkflowSurvey, diagnostics: diagnosticAssessments, salesStages }}/>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -86,8 +99,9 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
                 { step: 5, icon: Group, title: "Build ICP Segment Groups", color: "from-teal-500 to-cyan-500", iconColor: "text-teal-600" },
                 { step: 6, icon: BarChart3, title: "Prioritize ICP Groups", color: "from-indigo-500 to-violet-500", iconColor: "text-indigo-600" },
                 { step: 7, icon: ListCollapse, title: "Complete GTM Survey", color: "from-cyan-500 to-blue-600", iconColor: "text-cyan-600" },
-                { step: 8, icon: Workflow, title: "Run Diagnostic Assessment", color: "from-purple-500 to-indigo-600", iconColor: "text-purple-600" },
-                { step: 9, icon: FileText, title: "Review Holistic Summary", color: "from-gray-500 to-gray-600", iconColor: "text-gray-600" },
+                { step: 8, icon: GanttChartSquare, title: "Define Sales Process", color: "from-blue-500 to-sky-600", iconColor: "text-blue-600" },
+                { step: 9, icon: Workflow, title: "Run Diagnostic Assessment", color: "from-purple-500 to-indigo-600", iconColor: "text-purple-600" },
+                { step: 10, icon: FileText, title: "Review Holistic Summary", color: "from-gray-500 to-gray-600", iconColor: "text-gray-600" },
             ].map(item => (
                  <div key={item.step} className="flex items-start space-x-6 bg-white p-6 rounded-2xl border">
                     <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center text-white text-2xl font-bold`}>{item.step}</div>
