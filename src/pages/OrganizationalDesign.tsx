@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Target, Building2, UserCheck, Briefcase, Group, BarChart3, FileText, Workflow, ListCollapse, GanttChartSquare, Share2, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Target, User, Group, BarChart3, FileText, Workflow, ListCollapse, GanttChartSquare, Share2, ChevronDown, Building2, UserCheck, Briefcase } from 'lucide-react';
 import { SeniorityBucketing } from './SeniorityBucketing';
 import { DepartmentTeamOrganization } from './DepartmentTeamOrganization';
 import { PersonaCreation } from './PersonaCreation';
@@ -19,31 +19,47 @@ interface OrganizationalDesignProps {
 type ExperienceStep = 'choice' | 'seniority' | 'department' | 'persona' | 'account' | 'icp' | 'prioritization' | 'strategicWorkflows' | 'salesProcessBuilder' | 'diagnosticAssessment' | 'holisticSummary';
 
 const HierarchyDiagram = () => {
-    const [isVisible, setIsVisible] = useState(false);
-    useEffect(() => { const timer = setTimeout(() => setIsVisible(true), 100); return () => clearTimeout(timer); }, []);
-
-    const baseBox = "bg-white border-2 rounded-lg shadow-md flex items-center justify-center p-3 text-center font-semibold";
-    const baseLine = "bg-gray-300";
-    const animClass = "transition-all duration-500 ease-out";
-    const hidden = "opacity-0 -translate-y-3";
-    const visible = "opacity-100 translate-y-0";
+    const baseBox = "relative group border-2 rounded-xl shadow-sm flex items-center justify-center p-4 font-semibold cursor-pointer transition-all duration-300";
+    const tooltip = "absolute bottom-full mb-2 w-56 bg-gray-800 text-white text-xs rounded-lg p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 invisible group-hover:visible";
 
     return (
-        <div className="p-6 bg-slate-50 rounded-xl border-2 border-dashed">
-            <div className="grid grid-cols-2 gap-4 items-center justify-around h-72 relative">
+        <div className="p-8 bg-slate-50 rounded-xl border-2 border-dashed">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">Build Your GTM Context Map</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-10">
+                This sequential process will guide you through defining every layer of your GTM strategy, revealing how each component connects to form a complete picture.
+            </p>
+            <div className="relative h-64">
                 {/* Lines */}
-                <div className={`${baseLine} absolute top-1/4 left-1/4 w-px h-1/4 ${animClass} ${isVisible ? 'scale-y-100' : 'scale-y-0'}`} style={{transitionDelay: '400ms', transformOrigin: 'top'}}></div>
-                <div className={`${baseLine} absolute top-1/4 right-1/4 w-px h-1/4 ${animClass} ${isVisible ? 'scale-y-100' : 'scale-y-0'}`} style={{transitionDelay: '400ms', transformOrigin: 'top'}}></div>
-                <div className={`${baseLine} absolute top-1/2 left-1/4 right-1/4 h-px ${animClass} ${isVisible ? 'scale-x-100' : 'scale-x-0'}`} style={{transitionDelay: '600ms'}}></div>
-                <div className={`${baseLine} absolute top-1/2 left-1/2 w-px h-1/4 ${animClass} ${isVisible ? 'scale-y-100' : 'scale-y-0'}`} style={{transitionDelay: '800ms', transformOrigin: 'top'}}></div>
+                <div className="absolute top-[20%] left-1/4 w-px h-1/4 bg-gray-300"></div>
+                <div className="absolute top-[20%] right-1/4 w-px h-1/4 bg-gray-300"></div>
+                <div className="absolute top-[45%] left-1/4 right-1/4 h-px bg-gray-300"></div>
+                <div className="absolute top-[45%] left-1/2 w-px h-[28%] bg-gray-300"></div>
 
                 {/* Boxes */}
-                <div className={`${baseBox} border-blue-500 text-blue-800 ${animClass} ${isVisible ? visible : hidden}`} style={{transitionDelay: '100ms'}}><Target className="mr-2"/>Seniority</div>
-                <div className={`${baseBox} border-green-500 text-green-800 ${animClass} ${isVisible ? visible : hidden}`} style={{transitionDelay: '200ms'}}><Building2 className="mr-2"/>Function</div>
-
-                <div className={`col-span-2 justify-self-center ${baseBox} border-red-500 text-red-800 w-1/2 ${animClass} ${isVisible ? visible : hidden}`} style={{transitionDelay: '500ms'}}><UserCheck className="mr-2"/>Persona</div>
-
-                <div className={`col-span-2 justify-self-center ${baseBox} border-teal-500 text-teal-800 w-1/2 ${animClass} ${isVisible ? visible : hidden}`} style={{transitionDelay: '900ms'}}><Group className="mr-2"/>ICP Segment Group</div>
+                <div className="absolute top-0 left-0 w-1/2 pr-4">
+                    <div className={`${baseBox} bg-white border-blue-500 text-blue-700`}>
+                        <Target className="mr-2" /> Seniority
+                        <div className={tooltip}>Groups job titles by level of influence (e.g., Executive, Manager) to standardize your targeting.</div>
+                    </div>
+                </div>
+                <div className="absolute top-0 right-0 w-1/2 pl-4">
+                     <div className={`${baseBox} bg-white border-green-500 text-green-700`}>
+                        <FileText className="mr-2" /> Function
+                        <div className={tooltip}>Groups related job functions into departments (e.g., Sales, Marketing) to define the teams you sell to.</div>
+                    </div>
+                </div>
+                <div className="absolute top-[45%] -translate-y-1/2 left-1/4 right-1/4">
+                     <div className={`${baseBox} bg-white border-red-500 text-red-700`}>
+                        <User className="mr-2" /> Persona
+                        <div className={tooltip}>The combination of a Seniority and a Function. This defines *who* you are selling to (e.g., a Sales Manager).</div>
+                    </div>
+                </div>
+                <div className="absolute bottom-0 left-1/4 right-1/4">
+                     <div className={`${baseBox} bg-white border-teal-500 text-teal-700`}>
+                        <Group className="mr-2" /> ICP Segment Group
+                        <div className={tooltip}>The core of your strategy: specific Personas mapped to the types of Companies you target.</div>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -64,10 +80,7 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
 
   const handleBackToChoice = () => setStep('choice');
 
-  const handleRequestEditGroup = (groupId: string) => { 
-      setGroupToEditId(groupId); 
-      setStep('icp'); 
-  };
+  const handleRequestEditGroup = (groupId: string) => { setGroupToEditId(groupId); setStep('icp'); };
   
   const handleIcpBackNavigation = () => {
     if (groupToEditId) {
@@ -126,10 +139,6 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
       </header>
 
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Build Your GTM Context Map</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">This sequential process will guide you through defining every layer of your GTM strategy, revealing how each component connects to form a complete picture.</p>
-        </div>
         
         <HierarchyDiagram />
         
