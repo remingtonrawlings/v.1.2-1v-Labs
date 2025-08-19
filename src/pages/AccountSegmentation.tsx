@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Briefcase, Plus, Edit3, Trash2, X, ChevronsRight, Copy } from 'lucide-react';
+import { ArrowLeft, Briefcase, Plus, Edit3, Trash2, X, ChevronsRight, Copy, Info } from 'lucide-react';
 import { AccountSegment } from '../types';
 
 interface AccountSegmentationProps {
@@ -133,6 +133,14 @@ export const AccountSegmentation: React.FC<AccountSegmentationProps> = ({ onBack
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+            <Info className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div>
+                <h3 className="font-bold text-yellow-800">What to Do Here</h3>
+                <p className="text-yellow-700">Define *where* you sell by creating segments of target companies. Use criteria like industry, employee count, and annual revenue to group the types of businesses you want to target.</p>
+            </div>
+        </div>
+        
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Your Account Segments</h2>
           <button onClick={createSegment} className="flex items-center space-x-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"><Plus className="w-4 h-4" /><span>Create Segment</span></button>

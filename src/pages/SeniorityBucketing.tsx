@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Target, Plus, Edit3, Trash2, User, ChevronsRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, Target, Plus, Edit3, Trash2, User, ChevronsRight, Sparkles, Info } from 'lucide-react';
 import { SeniorityBucket } from '../types';
 
 interface SeniorityBucketingProps {
@@ -183,6 +183,14 @@ export const SeniorityBucketing: React.FC<SeniorityBucketingProps> = ({ onBack, 
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+                <h3 className="font-bold text-blue-800">What to Do Here</h3>
+                <p className="text-blue-700">Drag the standard seniority levels from the left library into your own custom buckets on the right. This allows you to create groupings that match how your organization thinks about seniority (e.g., a bucket for "Decision Makers" might include C-Level and VP).</p>
+            </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm sticky top-24">

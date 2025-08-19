@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, ChevronsRight, Database, HardDrive, Workflow, BarChartBig, Target, Lightbulb, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, Database, HardDrive, Workflow, BarChartBig, Target, Lightbulb, ChevronDown, Info } from 'lucide-react';
 import { DiagnosticAssessment as DiagnosticAssessmentType } from '../types';
 
 interface DiagnosticAssessmentProps {
@@ -76,7 +76,7 @@ export const DiagnosticAssessment: React.FC<DiagnosticAssessmentProps> = ({ onBa
     
     const sortedPriorities = useMemo(() => {
         const scored = assessments.filter(a => a.maturity !== null);
-        const priorityScore = (item: DiagnosticAssessmentType) => (item.impact * 0.6) + (item.feasibility * 0.4) - (item.maturity * 0.1);
+        const priorityScore = (item: DiagnosticAssessmentType) => (item.impact * 0.6) + (item.feasibility * 0.4) - (item.maturity! * 0.1);
         scored.sort((a, b) => priorityScore(b) - priorityScore(a));
         return scored;
     }, [assessments]);
@@ -105,6 +105,14 @@ export const DiagnosticAssessment: React.FC<DiagnosticAssessmentProps> = ({ onBa
             </header>
 
             <div className="max-w-7xl mx-auto px-6 py-8">
+                <div className="bg-purple-50 border-l-4 border-purple-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+                    <Info className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <h3 className="font-bold text-purple-800">What to Do Here</h3>
+                        <p className="text-purple-700">Evaluate each area of your GTM strategy. For each item, select a **Maturity Score** based on its current state, then rate the **Impact** of improving it and the **Feasibility** of doing so. The results will automatically highlight your top priorities.</p>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
                          <div className="space-y-4">

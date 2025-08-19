@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, UserCheck, Plus, Edit3, Trash2, Check, X, Sparkles, ChevronsRight, FileText, FileSymlink, Edit } from 'lucide-react';
+import { ArrowLeft, UserCheck, Plus, Edit3, Trash2, Check, X, Sparkles, ChevronsRight, FileText, FileSymlink, Edit, Info } from 'lucide-react';
 import { SeniorityBucket, DepartmentBucket, PersonaBucket } from '../types';
 
 interface PersonaCreationProps {
@@ -127,11 +127,24 @@ export const PersonaCreation: React.FC<PersonaCreationProps> = ({ onBack, onNext
           let name = 'Custom Persona';
            if (namingConvention === 'seniority_first') name = `${seniorityBucket.name} - ${departmentBucket.name}`;
            else if (namingConvention === 'function_first') name = `${departmentBucket.name} - ${seniorityBucket.name}`;
-          newPersonas.push({ id: `persona-${seniorityId}-${functionId}`, name, seniorityBucketId: seniorityId, departmentBucketId: functionId });
+          
+          const existingPersona = personaBuckets.find(p => p.seniorityBucketId === seniorityId && p.departmentBucketId === functionId);
+          
+          newPersonas.push({ 
+            id: existingPersona ? existingPersona.id : `persona-${Date.now()}-${seniorityId}-${functionId}`, 
+            name, 
+            seniorityBucketId: seniorityId, 
+            departmentBucketId: functionId 
+          });
         }
       });
     });
-    setPersonaBuckets(prev => [...prev.filter(p => !newPersonas.some(np => np.id === p.id)), ...newPersonas]);
+    
+    const newPersonasMap = new Map(newPersonas.map(p => [p.id, p]));
+    const updatedPersonas = personaBuckets.map(p => newPersonasMap.has(p.id) ? newPersonasMap.get(p.id)! : p);
+    const trulyNewPersonas = newPersonas.filter(p => !personaBuckets.some(op => op.id === p.id));
+    
+    setPersonaBuckets([...updatedPersonas, ...trulyNewPersonas]);
     setStep('manual_create');
   };
 
@@ -205,13 +218,21 @@ export const PersonaCreation: React.FC<PersonaCreationProps> = ({ onBack, onNext
       case 'manual_create':
       default:
         return (
+        <>
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+                <Info className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                    <h3 className="font-bold text-red-800">What to Do Here</h3>
+                    <p className="text-red-700">Now, you'll define *who* you sell to. Create a Persona by selecting one Seniority bucket and one Function bucket. This combination represents a specific target individual within a company (e.g., a "Sales Director").</p>
+                </div>
+            </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1 space-y-8">
               <div className="bg-white rounded-xl border p-6 shadow-sm">
                 <h2 className="text-lg font-bold text-gray-800 mb-4">Your Seniority Buckets</h2>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {seniorityBuckets.length > 0 ? seniorityBuckets.map(b => (
-                    <div key={b.id} className={`p-3 rounded-lg border-2 ${b.color.replace('bg-', 'border-')}`}>{b.name}</div>
+                    <div key={b.id} className={`p-3 rounded-lg border-2 ${b.color?.replace('bg-', 'border-')}`}>{b.name}</div>
                   )) : <p className="text-gray-500 italic">No buckets created.</p>}
                 </div>
               </div>
@@ -219,7 +240,7 @@ export const PersonaCreation: React.FC<PersonaCreationProps> = ({ onBack, onNext
                 <h2 className="text-lg font-bold text-gray-800 mb-4">Your Function Buckets</h2>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {departmentBuckets.length > 0 ? departmentBuckets.map(b => (
-                    <div key={b.id} className={`p-3 rounded-lg border-2 ${b.color.replace('bg-', 'border-')}`}>{b.name}</div>
+                    <div key={b.id} className={`p-3 rounded-lg border-2 ${b.color?.replace('bg-', 'border-')}`}>{b.name}</div>
                   )) : <p className="text-gray-500 italic">No buckets created.</p>}
                 </div>
               </div>
@@ -233,7 +254,7 @@ export const PersonaCreation: React.FC<PersonaCreationProps> = ({ onBack, onNext
                   <span>Create Persona</span>
                 </button>
               </div>
-              <button onClick={resetFlow} className="text-sm text-blue-600 hover:underline mb-6">Change naming convention</button>
+              <button onClick={resetFlow} className="text-sm text-blue-600 hover:underline mb-6">Change naming convention or bulk-create</button>
 
               <div className="space-y-4">
                 {personaBuckets.map(bucket => (
@@ -273,6 +294,7 @@ export const PersonaCreation: React.FC<PersonaCreationProps> = ({ onBack, onNext
               </div>
             </div>
           </div>
+        </>
         );
     }
   };

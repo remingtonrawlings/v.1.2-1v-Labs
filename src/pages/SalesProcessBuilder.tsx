@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ChevronsRight, Plus, Edit3, Trash2, ChevronDown, Check, X } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, Plus, Edit3, Trash2, ChevronDown, Info } from 'lucide-react';
 import { SalesStage } from '../types';
 
 interface SalesProcessBuilderProps {
@@ -113,6 +113,14 @@ export const SalesProcessBuilder: React.FC<SalesProcessBuilderProps> = ({ onBack
         </header>
 
         <div className="max-w-4xl mx-auto px-6 py-8">
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                    <h3 className="font-bold text-blue-800">What to Do Here</h3>
+                    <p className="text-blue-700">Define the key stages in your buyer's journey from their perspective. For each stage, specify what needs to happen, what criteria moves them forward, and what assets are needed. This creates a consistent and repeatable sales motion for your team to follow.</p>
+                </div>
+            </div>
+
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Your Buyer Journey Stages</h2>
             <div className="flex space-x-2">

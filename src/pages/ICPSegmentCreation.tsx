@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ArrowLeft, Group, UserCheck, Plus, Edit3, Trash2, X, ChevronsRight, Copy, AppWindow, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Group, UserCheck, Plus, Edit3, Trash2, X, ChevronsRight, Copy, AppWindow, ChevronDown, Info } from 'lucide-react';
 import { AccountSegment, PersonaBucket, SeniorityBucket, DepartmentBucket, ICPSegmentGroup } from '../types';
 
 interface ICPSegmentCreationProps {
@@ -98,23 +98,13 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
   
   useEffect(() => {
     if (initialEditGroupId) {
-      const groupToEdit = icpGroups.find(g => g.id === initialEditGroupId);
+      const groupToEdit = initialGroups.find(g => g.id === initialEditGroupId);
       if (groupToEdit) {
         setEditingGroup(groupToEdit);
       }
     }
-  }, [initialEditGroupId, icpGroups]);
+  }, [initialEditGroupId, initialGroups]);
 
-  const handleBack = () => {
-    onEditFlowComplete?.();
-    onBack();
-  };
-
-  const handleNext = () => {
-    onEditFlowComplete?.();
-    onNext(icpGroups);
-  };
-  
   const toggleGroupExpansion = (groupId: string) => {
     const newSet = new Set(expandedGroupIds);
     if(newSet.has(groupId)) newSet.delete(groupId);
@@ -168,12 +158,16 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
       setIcpGroups(icpGroups.map(g => g.id === editingGroup.id ? editingGroup : g));
     }
     setEditingGroup(null);
-    onEditFlowComplete?.();
+    if (initialEditGroupId) {
+        onEditFlowComplete?.();
+    }
   };
   
    const cancelEditingGroup = () => {
     setEditingGroup(null);
-    onEditFlowComplete?.();
+    if (initialEditGroupId) {
+        onEditFlowComplete?.();
+    }
   };
   
   const deleteIcpGroup = (id: string) => setIcpGroups(icpGroups.filter(g => g.id !== id));
@@ -217,7 +211,6 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
     setShowAssignModal(false);
   }
 
-
   return (
     <>
     {showAssignModal && <PersonaAssignmentModal icpGroups={icpGroups} personaBuckets={personaBuckets} onAssign={handleBulkAssign} onCancel={() => setShowAssignModal(false)} />}
@@ -247,16 +240,24 @@ export const ICPSegmentCreation: React.FC<ICPSegmentCreationProps> = ({ onBack, 
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-lg"><ArrowLeft className="w-5 h-5 text-gray-600" /></button>
+              <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg"><ArrowLeft className="w-5 h-5 text-gray-600" /></button>
               <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center"><Group className="w-6 h-6 text-white" /></div>
               <div><h1 className="text-2xl font-bold text-gray-900">Step 5: Build ICP Segment Groups</h1><p className="text-gray-600">Map Personas to Account Segments</p></div>
             </div>
-            <button onClick={handleNext} disabled={icpGroups.length === 0} className="flex items-center space-x-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-semibold disabled:bg-teal-300 disabled:cursor-not-allowed"><span>Next: Prioritize</span><ChevronsRight className="w-5 h-5" /></button>
+            <button onClick={() => onNext(icpGroups)} disabled={icpGroups.length === 0} className="flex items-center space-x-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-semibold disabled:bg-teal-300 disabled:cursor-not-allowed"><span>Next: Prioritize</span><ChevronsRight className="w-5 h-5" /></button>
           </div>
         </div>
       </header>
       
        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="bg-teal-50 border-l-4 border-teal-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+            <Info className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+            <div>
+                <h3 className="font-bold text-teal-800">What to Do Here</h3>
+                <p className="text-teal-700">This is where your strategy comes together. Create ICP Groups by mapping your Personas (the "who") to your Account Segments (the "where"). You can either link to an existing Account Segment or create groups based only on personas.</p>
+            </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
                 <div className="bg-white rounded-xl border p-6 shadow-sm sticky top-24">

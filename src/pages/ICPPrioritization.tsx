@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, BarChart3, GripVertical, ChevronsRight, Eye, Edit3, X } from 'lucide-react';
+import { ArrowLeft, BarChart3, GripVertical, ChevronsRight, Eye, Edit3, X, Info } from 'lucide-react';
 import { ICPSegmentGroup, AccountSegment, PersonaBucket } from '../types';
 
 export interface PriorityState {
@@ -50,6 +50,13 @@ const GroupDetailsModal = ({ group, accountSegments, personaBuckets, onClose, on
     )
 };
 
+const ICPGroupCard = ({group, onDragStart, onDragEnd, isDragging, onView}: {group: ICPSegmentGroup; onDragStart: (id: string) => void; onDragEnd: () => void; isDragging: boolean; onView: (group: ICPSegmentGroup) => void;}) => (
+    <div draggable onDragStart={() => onDragStart(group.id)} onDragEnd={onDragEnd} className={`p-2 rounded-lg border flex items-center transition-all duration-200 justify-between ${isDragging ? 'opacity-50 scale-95 shadow-lg' : 'bg-white'} `} style={{ borderLeft: `5px solid ${group.color}`}}>
+        <div className="flex items-center cursor-grab"><GripVertical className="text-gray-400 mr-2" /><span className="font-semibold text-gray-800">{group.name}</span></div>
+        <button onClick={() => onView(group)} className="p-2 hover:bg-gray-100 rounded-lg"><Eye size={16} className="text-gray-500" /></button>
+    </div>
+);
+
 export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, onNext, icpGroups, initialPriorities, accountSegments, personaBuckets, onEditRequest }) => {
   const [priorities, setPriorities] = useState<PriorityState>(initialPriorities);
   const [draggedGroupId, setDraggedGroupId] = useState<string | null>(null);
@@ -63,7 +70,6 @@ export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, onN
 
   const findGroup = (id: string) => icpGroups.find(g => g.id === id);
 
-  // ... Drag and drop handlers remain the same ...
   const handleDragStart = (groupId: string) => setDraggedGroupId(groupId);
   const handleDragEnd = () => setDraggedGroupId(null);
   const handleDragOver = (e: React.DragEvent, target: PriorityLevel) => { e.preventDefault(); setDragOverTarget(target); };
@@ -81,17 +87,17 @@ export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, onN
     setDraggedGroupId(null);
   };
   
-  const ICPGroupCard = ({group, onDragStart, onDragEnd, isDragging, onView}: {group: ICPSegmentGroup; onDragStart: (id: string) => void; onDragEnd: () => void; isDragging: boolean; onView: (group: ICPSegmentGroup) => void;}) => (
-    <div draggable onDragStart={() => onDragStart(group.id)} onDragEnd={onDragEnd} className={`p-2 rounded-lg border flex items-center transition-all duration-200 justify-between ${isDragging ? 'opacity-50 scale-95 shadow-lg' : 'bg-white'} `} style={{ borderLeft: `5px solid ${group.color}`}}>
-        <div className="flex items-center cursor-grab"><GripVertical className="text-gray-400 mr-2" /><span className="font-semibold text-gray-800">{group.name}</span></div>
-        <button onClick={() => onView(group)} className="p-2 hover:bg-gray-100 rounded-lg"><Eye size={16} className="text-gray-500" /></button>
-    </div>
-);
-
   const PriorityBucket = ({ title, level, groupIds }: { title: string; level: PriorityLevel; groupIds: string[] }) => (
     <div onDrop={(e) => handleDrop(e, level)} onDragOver={(e) => handleDragOver(e, level)} onDragLeave={handleDragLeave} className={`rounded-xl border p-6 shadow-sm min-h-[400px] flex flex-col transition-all duration-200 ${dragOverTarget === level ? 'bg-blue-50 border-blue-500 border-2' : 'bg-white'}`}>
         <h2 className={`text-xl font-bold mb-4 text-center pb-2 border-b-2 ${level === 'high' && 'border-red-500 text-red-600'} ${level === 'medium' && 'border-yellow-500 text-yellow-600'} ${level === 'low' && 'border-blue-500 text-blue-600'}`}>{title}</h2>
-        <div className="space-y-3 flex-grow pt-4">{groupIds.map(id => { const group = findGroup(id); if (!group) return null; return <ICPGroupCard key={id} group={group} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isDragging={draggedGroupId === id} onView={setViewingGroup}/>; })} {groupIds.length === 0 && <div className="h-full flex items-center justify-center text-gray-400 italic">Drop groups here</div>}</div>
+        <div className="space-y-3 flex-grow pt-4">
+            {groupIds.map(id => { 
+                const group = findGroup(id); 
+                if (!group) return null; 
+                return <ICPGroupCard key={id} group={group} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isDragging={draggedGroupId === id} onView={setViewingGroup}/>; 
+            })} 
+            {groupIds.length === 0 && <div className="h-full flex items-center justify-center text-gray-400 italic">Drop groups here</div>}
+        </div>
     </div>
   );
 
@@ -113,12 +119,22 @@ export const ICPPrioritization: React.FC<ICPProritizationProps> = ({ onBack, onN
             </header>
 
             <div className="max-w-7xl mx-auto px-6 py-8">
+                <div className="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+                    <Info className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <h3 className="font-bold text-indigo-800">What to Do Here</h3>
+                        <p className="text-indigo-700">Drag your ICP Groups from the library into the priority buckets (High, Medium, Low). This critical step helps focus your sales and marketing efforts on the segments that will provide the most value.</p>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-xl border p-6 shadow-sm sticky top-24">
                             <h2 className="text-lg font-bold text-gray-800 mb-4">ICP Groups Library</h2>
                             <div onDrop={(e) => handleDrop(e, 'unassigned')} onDragOver={(e) => handleDragOver(e, 'unassigned')} onDragLeave={handleDragLeave} className={`space-y-3 max-h-[60vh] overflow-y-auto pr-2 min-h-[10rem] p-2 rounded-lg transition-all duration-200 ${dragOverTarget === 'unassigned' ? 'bg-blue-100' : 'bg-gray-50'}`}>
-                                {unassignedGroups.length > 0 ? unassignedGroups.map(group => (<ICPGroupCard key={group.id} group={group} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isDragging={draggedGroupId === group.id} onView={setViewingGroup}/>)) : <p className="text-gray-500 italic text-center pt-8">All groups prioritized!</p>}
+                                {unassignedGroups.length > 0 ? unassignedGroups.map(group => (
+                                    <ICPGroupCard key={group.id} group={group} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isDragging={draggedGroupId === group.id} onView={setViewingGroup}/>
+                                )) : <p className="text-gray-500 italic text-center pt-8">All groups prioritized!</p>}
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ChevronsRight, Inbox, Calendar, Zap, Users, ListCollapse, HardDrive } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, Inbox, Calendar, Zap, Users, ListCollapse, HardDrive, Info } from 'lucide-react';
 import { StrategicWorkflowSurvey } from '../types';
 
 const TOP_LANGUAGES = ["English", "Spanish", "Mandarin", "Hindi", "French", "Arabic", "Bengali", "Russian", "Portuguese", "German"];
@@ -62,12 +62,20 @@ export const StrategicWorkflows: React.FC<{onBack: () => void; onNext: (data: St
               <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center"><ListCollapse className="w-6 h-6 text-white" /></div>
               <div><h1 className="text-2xl font-bold text-gray-900">Step 7: GTM Survey</h1><p className="text-gray-600">Assess your organization's strategic focus</p></div>
             </div>
-            <button onClick={() => onNext(survey)} className="flex items-center space-x-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 font-semibold"><span>Next: Diagnostics</span><ChevronsRight className="w-5 h-5" /></button>
+            <button onClick={() => onNext(survey)} className="flex items-center space-x-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 font-semibold"><span>Next: Sales Process</span><ChevronsRight className="w-5 h-5" /></button>
           </div>
         </div>
       </header>
       
       <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+        <div className="bg-cyan-50 border-l-4 border-cyan-400 p-4 mb-2 rounded-r-lg flex items-start space-x-3">
+            <Info className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-0.5" />
+            <div>
+                <h3 className="font-bold text-cyan-800">What to Do Here</h3>
+                <p className="text-cyan-700">Answer these questions to capture a snapshot of your current GTM motions, team structure, and technology stack. This information provides the necessary context for the diagnostic assessment in a later step.</p>
+            </div>
+        </div>
+        
         {/* Inbound Motion */}
         <div className="bg-white rounded-xl border p-6 shadow-sm"><div className="flex items-center space-x-3 mb-4"><Inbox className="w-6 h-6 text-cyan-600" /><h2 className="text-xl font-bold text-gray-800">Inbound Motion Focus</h2></div><div className="space-y-4">
           <div className="flex justify-between items-center"><p>Do your teams contact inbound leads as part of prospecting?</p><YesNoToggle value={survey.inbound.contactsLeads} onChange={v => handleBoolChange('inbound', 'contactsLeads', v)} /></div>

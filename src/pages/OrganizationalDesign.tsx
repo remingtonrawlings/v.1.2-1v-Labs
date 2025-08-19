@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Target, Building2, UserCheck, Briefcase, Group, BarChart3, FileText, Workflow, ListCollapse, GanttChartSquare, Share2 } from 'lucide-react';
+import { ArrowLeft, Target, Building2, UserCheck, Briefcase, Group, BarChart3, FileText, Workflow, ListCollapse, GanttChartSquare, Share2, ChevronDown } from 'lucide-react';
 import { SeniorityBucketing } from './SeniorityBucketing';
 import { DepartmentTeamOrganization } from './DepartmentTeamOrganization';
 import { PersonaCreation } from './PersonaCreation';
@@ -51,7 +51,6 @@ const HierarchyDiagram = () => {
 
 export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBack }) => {
   const [step, setStep] = useState<ExperienceStep>('choice');
-  // ... all other state initializations are the same
   const [seniorityBuckets, setSeniorityBuckets] = useState<SeniorityBucket[]>([]);
   const [departmentBuckets, setDepartmentBuckets] = useState<DepartmentBucket[]>([]);
   const [personaBuckets, setPersonaBuckets] = useState<PersonaBucket[]>([]);
@@ -65,8 +64,20 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
 
   const handleBackToChoice = () => setStep('choice');
 
-  const handleRequestEditGroup = (groupId: string) => { setGroupToEditId(groupId); setStep('icp'); };
+  const handleRequestEditGroup = (groupId: string) => { 
+      setGroupToEditId(groupId); 
+      setStep('icp'); 
+  };
   
+  const handleIcpBackNavigation = () => {
+    if (groupToEditId) {
+        setGroupToEditId(null);
+        setStep('prioritization');
+    } else {
+        setStep('account');
+    }
+  };
+
   const handleSeniorityNext = (buckets: SeniorityBucket[]) => { setSeniorityBuckets(buckets); setStep('department'); };
   const handleDepartmentNext = (buckets: DepartmentBucket[]) => { setDepartmentBuckets(buckets); setStep('persona'); };
   const handlePersonaNext = (buckets: PersonaBucket[]) => { setPersonaBuckets(buckets); setStep('account'); };
@@ -82,12 +93,25 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
   if (step === 'department') return <DepartmentTeamOrganization onBack={() => setStep('seniority')} onNext={handleDepartmentNext} initialBuckets={departmentBuckets} />;
   if (step === 'persona') return <PersonaCreation onBack={() => setStep('department')} onNext={handlePersonaNext} seniorityBuckets={seniorityBuckets} departmentBuckets={departmentBuckets} initialPersonas={personaBuckets} />;
   if (step === 'account') return <AccountSegmentation onBack={() => setStep('persona')} onNext={handleAccountNext} initialSegments={accountSegments} />;
-  if (step === 'icp') return <ICPSegmentCreation onBack={() => step === 'prioritization' ? setStep('prioritization') : setStep('account')} onNext={handleIcpNext} personaBuckets={personaBuckets} accountSegments={accountSegments} seniorityBuckets={seniorityBuckets} departmentBuckets={departmentBuckets} initialGroups={icpGroups} initialEditGroupId={groupToEditId} onEditFlowComplete={() => { setGroupToEditId(null); setStep('prioritization'); }} />;
+  if (step === 'icp') return <ICPSegmentCreation onBack={handleIcpBackNavigation} onNext={handleIcpNext} personaBuckets={personaBuckets} accountSegments={accountSegments} seniorityBuckets={seniorityBuckets} departmentBuckets={departmentBuckets} initialGroups={icpGroups} initialEditGroupId={groupToEditId} onEditFlowComplete={handleIcpBackNavigation} />;
   if (step === 'prioritization') return <ICPPrioritization onBack={() => setStep('icp')} onNext={handlePrioritizationNext} icpGroups={icpGroups} initialPriorities={priorities} accountSegments={accountSegments} personaBuckets={personaBuckets} onEditRequest={handleRequestEditGroup} />;
   if (step === 'strategicWorkflows') return <StrategicWorkflows onBack={() => setStep('prioritization')} onNext={handleStrategicWorkflowsNext} />;
   if (step === 'salesProcessBuilder') return <SalesProcessBuilder onBack={() => setStep('strategicWorkflows')} onNext={handleSalesProcessNext} initialStages={salesStages} />;
   if (step === 'diagnosticAssessment') return <DiagnosticAssessment onBack={() => setStep('salesProcessBuilder')} onNext={handleDiagnosticNext} />;
   if (step === 'holisticSummary') return <HolisticSummary onBack={() => setStep('diagnosticAssessment')} onComplete={handleSummaryComplete} data={{seniorityBuckets, departmentBuckets, personaBuckets, accountSegments, icpGroups, priorities, survey: strategicWorkflowSurvey, diagnostics: diagnosticAssessments, salesStages }}/>;
+
+  const stepsData = [
+    { step: 1, icon: Target, title: "Define Seniority Buckets", description: "First, create high-level groupings for job seniority (e.g., 'Executive', 'Manager'). This helps standardize how you think about the levels of influence within a target company." },
+    { step: 2, icon: Building2, title: "Define Function Buckets", description: "Next, group related job functions into departments (e.g., 'Sales', 'Marketing', 'IT'). This provides a clear vocabulary for the different teams you sell to." },
+    { step: 3, icon: UserCheck, title: "Create Persona Buckets", description: "Combine your Seniority and Function buckets to create specific, targetable Personas (e.g., 'Marketing Manager'). This defines *who* you are selling to." },
+    { step: 4, icon: Briefcase, title: "Create Account Segments", description: "Define the types of companies you target based on firmographics like industry, employee count, or revenue. This defines *where* you are selling." },
+    { step: 5, icon: Group, title: "Build ICP Segment Groups", description: "This is the core of your strategy. Map your Personas to your Account Segments to create specific, actionable ICPs (e.g., 'Marketing Managers at SaaS companies')." },
+    { step: 6, icon: BarChart3, title: "Prioritize ICP Groups", description: "Not all ICPs are created equal. Drag and drop your groups into priority tiers (High, Medium, Low) to focus your team's effort on the most valuable targets." },
+    { step: 7, icon: ListCollapse, title: "Complete GTM Survey", description: "Answer a series of questions about your current sales motions, team structure, and tech stack. This data provides crucial context for the final diagnostic." },
+    { step: 8, icon: GanttChartSquare, title: "Define Sales Process", description: "Map out the key stages of your buyer's journey. Defining a structured sales process ensures consistent execution and clear handoffs for your team." },
+    { step: 9, icon: Workflow, title: "Run Diagnostic Assessment", description: "Based on all the information you've provided, assess the maturity, impact, and feasibility of improving different areas of your GTM strategy to identify top priorities." },
+    { step: 10, icon: FileText, title: "Review Holistic Summary", description: "View a comprehensive summary of your entire GTM strategy, from foundation to diagnosis. From here, you can export all the details to share with your team." },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -96,48 +120,35 @@ export const OrganizationalDesign: React.FC<OrganizationalDesignProps> = ({ onBa
           <div className="flex items-center space-x-4">
             <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg"><ArrowLeft className="w-5 h-5 text-gray-600" /></button>
             <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center"><Share2 className="w-6 h-6 text-white" /></div>
-            <div><h1 className="text-2xl font-bold text-gray-900">GTM Strategy Studio</h1><p className="text-gray-600">A step-by-step guide to defining, prioritizing, and assessing your Go-To-Market strategy</p></div>
+            <div><h1 className="text-2xl font-bold text-gray-900">GTM Context Map Studio</h1><p className="text-gray-600">A step-by-step guide to building a comprehensive Go-To-Market strategy</p></div>
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Build a Standardized GTM Motion</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">This guided process builds your entire model, from foundational buckets to a final, prioritized action plan.</p>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Build Your GTM Context Map</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">This sequential process will guide you through defining every layer of your GTM strategy, revealing how each component connects to form a complete picture.</p>
         </div>
         
         <HierarchyDiagram />
-
-        <div className="mt-12">
-            <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">How It All Fits Together</h3>
-            <div className="space-y-4 text-gray-700">
-                <p><strong>Foundation (Buckets):</strong> Start by creating a standardized vocabulary for your organization. <strong className="text-blue-600">Seniority Buckets</strong> group titles by level (e.g., Executive, Manager), while <strong className="text-green-600">Function Buckets</strong> group them by job role (e.g., Sales, Marketing).</p>
-                <p><strong>The "Who" (Personas):</strong> By combining a Seniority and a Function bucket, you define a <strong className="text-red-600">Persona</strong>—a specific, targetable individual within an organization (e.g., a Sales Manager).</p>
-                <p><strong>The "Where" (Segments & ICPs):</strong> <strong className="text-yellow-600">Account Segments</strong> define the companies you target based on firmographics (size, industry). You then create an <strong className="text-teal-600">ICP Segment Group</strong> by mapping your Personas to these Account Segments. This becomes the core of your strategy, defining exactly who you're targeting at which companies.</p>
-                <p><strong>The Action Plan (Prioritization & Process):</strong> Finally, you <strong className="text-indigo-600">Prioritize</strong> your ICP Groups to focus efforts on the highest-value targets and define a structured <strong className="text-sky-600">Sales Process</strong> for them to follow. This creates a clear, actionable, and standardized GTM motion for your entire team.</p>
-            </div>
-        </div>
-
+        
         <div className="mt-12 bg-white p-6 rounded-2xl shadow-lg">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">The Complete Workflow</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">The Complete Workflow</h3>
             <div className="space-y-2">
-                {[
-                    { step: 1, icon: Target, title: "Define Seniority Buckets" },
-                    { step: 2, icon: Building2, title: "Define Function Buckets" },
-                    { step: 3, icon: UserCheck, title: "Create Persona Buckets" },
-                    { step: 4, icon: Briefcase, title: "Create Account Segments" },
-                    { step: 5, icon: Group, title: "Build ICP Segment Groups" },
-                    { step: 6, icon: BarChart3, title: "Prioritize ICP Groups" },
-                    { step: 7, icon: ListCollapse, title: "Complete GTM Survey" },
-                    { step: 8, icon: GanttChartSquare, title: "Define Sales Process" },
-                    { step: 9, icon: Workflow, title: "Run Diagnostic Assessment" },
-                    { step: 10, icon: FileText, title: "Review Holistic Summary" },
-                ].map(item => (
-                    <div key={item.step} className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg">
-                        <div className="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold">{item.step}</div>
-                        <div className="flex items-center space-x-2"><item.icon className="w-5 h-5 text-gray-500" /><h4 className="font-semibold text-gray-700">{item.title}</h4></div>
-                    </div>
+                {stepsData.map(item => (
+                    <details key={item.step} className="bg-gray-50 p-3 rounded-lg group">
+                        <summary className="flex items-center justify-between cursor-pointer list-none">
+                           <div className="flex items-center space-x-4">
+                                <div className="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold">{item.step}</div>
+                                <div className="flex items-center space-x-2"><item.icon className="w-5 h-5 text-gray-500" /><h4 className="font-semibold text-gray-700">{item.title}</h4></div>
+                            </div>
+                            <ChevronDown className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"/>
+                        </summary>
+                        <div className="pt-2 pl-14 text-gray-600 text-sm">
+                            <p>{item.description}</p>
+                        </div>
+                    </details>
                 ))}
             </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { ArrowLeft, Building2, Plus, Search, Edit3, Trash2, ChevronDown, ChevronRight, CheckCircle2, ChevronsRight, Layers, AppWindow } from 'lucide-react';
+import { ArrowLeft, Building2, Plus, Search, Edit3, Trash2, ChevronDown, ChevronRight, CheckCircle2, ChevronsRight, Layers, AppWindow, Info } from 'lucide-react';
 import { departmentTeamMapping } from '../data/comprehensiveOrgData';
 import { DepartmentBucket, TeamFunction } from '../types';
 
@@ -160,7 +160,7 @@ const BulkCreateModal = ({ onSave, onCancel }: { onSave: (names: string[]) => vo
 };
 
 export const DepartmentTeamOrganization: React.FC<DepartmentTeamOrganizationProps> = ({ onBack, onNext, initialBuckets }) => {
-  const [departmentBuckets, setDepartmentBuckets] = useState<DepartmentBucket[]>(initialBuckets);
+    const [departmentBuckets, setDepartmentBuckets] = useState<DepartmentBucket[]>(initialBuckets);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedDepartments, setExpandedDepartments] = useState<Set<string>>(new Set());
   const [draggedItem, setDraggedItem] = useState<{ type: 'department' | 'function'; data: any } | null>(null);
@@ -336,7 +336,15 @@ export const DepartmentTeamOrganization: React.FC<DepartmentTeamOrganizationProp
         </header>
 
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-8 rounded-r-lg flex items-start space-x-3">
+                <Info className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                    <h3 className="font-bold text-green-800">What to Do Here</h3>
+                    <p className="text-green-700">A "Job Function" (e.g., 'Account Executive') is a subset of roles within a broader Department. Drag standard job functions from the library into your custom-named "Department" buckets on the right (e.g., a 'Go-to-Market' bucket might contain Sales, Marketing, and CS functions).</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm sticky top-24 max-h-[800px] flex flex-col">
                 <div className="p-6 border-b border-gray-200">
